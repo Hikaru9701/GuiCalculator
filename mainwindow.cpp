@@ -177,10 +177,10 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+	timer->stop(); // stop the QTimer
 	delete ui;
 	delete timer;
 	delete calculation;
-	delete movieShiba;
 	delete themeGroup;
 }
 
@@ -195,7 +195,7 @@ void MainWindow::about()
 	QMessageBox::about(this, "About Me",
 					   "<center><h2>ShibaCalculator</h2></center><br>"
 					   "A cuter calculator based on Qt 5.7.1<br>"
-					   "Version 1.2.1 Steady<br>"
+					   "Version 1.2.2 Steady<br>"
 					   "Designed by HikaruHoshino");
 }
 
