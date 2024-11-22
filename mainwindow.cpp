@@ -247,7 +247,17 @@ void MainWindow::changeTheme(QAction* action)
 {
 	QString mainWindowTheme = QCoreApplication::applicationDirPath() + "/styles/" + action->objectName().remove("action") + ".qss";
 	QFile file(mainWindowTheme);
-	file.open(QIODevice::ReadOnly);
+	
+	if (!file.exists()) {
+        	QMessageBox::warning(this, "Warning", "The theme file is not found: " + mainWindowTheme);
+        	return;
+    	}
+    
+    	if (!file.open(QIODevice::ReadOnly)) {
+        	QMessageBox::warning(this, "Warning", "Failed to open the theme file: " + mainWindowTheme);
+        	return;
+    	}
+	
 	setStyleSheet(file.readAll());
 }
 
