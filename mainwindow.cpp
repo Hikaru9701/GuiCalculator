@@ -15,6 +15,8 @@ QString gHistoryText = "";										// 計算履歴文字列
 QList<QString> gHistoryTextList;								// 表示内容履歴配列
 QList<QString> gHistoryFormulaList;								// 数式履歴配列
 
+const QString VERSION = "1.4.1 beta";
+
 //----------------------------------------------------------------------------
 //------------------------------コンストラクタ--------------------------------
 //----------------------------------------------------------------------------
@@ -31,10 +33,14 @@ MainWindow::MainWindow(QWidget* parent)
 	this->setMaximumSize(550, 500);
 
 	ui->setupUi(this);
-
+	
+	// set the title of the program
+	QString title = QString("ShibaCalculator - v%1").arg(VERSION);
+	this->setWindowTitle(title);
+	
 	// 前回情報の読み込み
-	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";;
-	QSettings setting(settingPath, QSettings::IniFormat);;	// ファイルの特定
+	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";
+	QSettings setting(settingPath, QSettings::IniFormat);	// ファイルの特定
 	QPoint posMainWindow = setting.value("pos").toPoint();		// 場所情報を獲得
 	int widthMainWindow = setting.value("width").toInt();		// 幅情報を獲得
 	int heightMainWindow = setting.value("height").toInt();		// 高さ情報を獲得
@@ -131,10 +137,10 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(ui->actionAboutMe, SIGNAL(triggered()), this, SLOT(about()));
 	connect(ui->actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
 	connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(exit()));
-	//Qt5スタイル
-	//connect(ui->actionAboutMe, &QAction::triggered, this, &MainWindow::about);
-	//connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
-	//connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
+	// Qt5スタイル
+	// connect(ui->actionAboutMe, &QAction::triggered, this, &MainWindow::about);
+	// connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
+	// connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
 
 	// 入力ボタンをクリック
 	connect(ui->btnNum7, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
@@ -155,24 +161,24 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(ui->btnNum0, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
 	connect(ui->btnSignDivided, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
 
-	//Qt5スタイル
-//	connect(ui->pushButton_7, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_8, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_9, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_plus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_left, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_6, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_minus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_right, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_multi, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_point, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_0, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-//	connect(ui->pushButton_divided, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// Qt5スタイル
+	// connect(ui->pushButton_7, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_8, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_9, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_plus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_left, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_6, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_minus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_right, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_multi, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_point, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_0, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_divided, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
 
 }
 
@@ -187,20 +193,23 @@ MainWindow::~MainWindow()
 	// stop the QTimer
 	if (timer) {
 		// qDebug() << "Stopping timer";
-        	timer->stop();
-        	delete timer;
-        	timer = nullptr;
-    	}
+		timer->stop();
+		delete timer;
+		timer = nullptr;
+	}
 
 	// delete calculation objects
-    	if (calculation) {
+	if (calculation) {
+		disconnect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
+		disconnect(calculation, SIGNAL(sendAnswer(QString)), this, SLOT(receiveAnswer(QString)));
 		// qDebug() << "Deleting calculation";
-      		delete calculation;
-        	calculation = nullptr;
-    	}
+		delete calculation;
+		calculation = nullptr;
+	}
 
 	// delete QAction objects
 	if (themeGroup) {
+		disconnect(themeGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeTheme(QAction*)));
 		// qDebug() << "Deleting actions in themeGroup";
 		foreach (QAction* action, themeGroup->actions()) {
 			// qDebug() << "Deleting action" << action;
@@ -210,6 +219,12 @@ MainWindow::~MainWindow()
 		delete themeGroup;
 		themeGroup = nullptr;
 	}
+	
+	// delete QMovie object
+	if (ui->lblMovie->movie()) {
+		delete ui->lblMovie->movie();
+		ui->lblMovie->setMovie(nullptr);
+	}
 
 	// delete UI
 	if (ui) {
@@ -217,6 +232,10 @@ MainWindow::~MainWindow()
 		delete ui;
 		ui = nullptr;
 	}
+	
+	// delete QList
+	gHistoryTextList.clear();
+	gHistoryFormulaList.clear();
 
 	// qDebug() << "Destructor finished";
 }
@@ -230,10 +249,10 @@ MainWindow::~MainWindow()
 void MainWindow::about()
 {
 	QMessageBox::about(this, "About Me",
-					   "<center><h2>ShibaCalculator</h2></center><br>"
-					   "A cuter calculator based on Qt 5.7.1<br>"
-					   "Version 1.4.0 Beta<br>"
-					   "Designed by HikaruHoshino");
+					"<center><h2>ShibaCalculator</h2></center><br>"
+					"A cuter calculator based on Qt 5.7.1<br>"
+					"Version " + VERSION + "<br>"
+					"Designed by HikaruHoshino");
 }
 
 // Qtに関する情報
@@ -249,14 +268,13 @@ void MainWindow::changeTheme(QAction* action)
 	QFile file(mainWindowTheme);
 	
 	if (!file.exists()) {
-        	QMessageBox::warning(this, "Warning", "The theme file is not found: " + mainWindowTheme);
-        	return;
-    	}
-    
-    	if (!file.open(QIODevice::ReadOnly)) {
-        	QMessageBox::warning(this, "Warning", "Failed to open the theme file: " + mainWindowTheme);
-        	return;
-    	}
+		QMessageBox::warning(this, "Warning", "The theme file is not found: " + mainWindowTheme);
+		return;
+	}
+	if (!file.open(QIODevice::ReadOnly)) {
+		QMessageBox::warning(this, "Warning", "Failed to open the theme file: " + mainWindowTheme);
+		return;
+	}
 	
 	setStyleSheet(file.readAll());
 }
@@ -282,7 +300,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	//Q_UNUSED(event);
 
 	// 前回の場所、大きさ情報をconfig.iniに記入
-	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";;
+	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";
 	QSettings setting(settingPath, QSettings::IniFormat);
 	setting.setValue("pos", this->pos());
 	setting.setValue("width", this->width());
@@ -597,10 +615,10 @@ void MainWindow::on_btnFuncEqual_clicked()
 		gDisplayText.chop(1);
 
 	}
-//      廃棄、下の処理はもっと優秀
-//    if (!formula.isEmpty() && formula.at(formula.length() - 1) == "("){
-//        formula.chop(2);
-//    }
+// 廃棄、下の処理はもっと優秀
+//if (!formula.isEmpty() && formula.at(formula.length() - 1) == "("){
+//	formula.chop(2);
+//}
 
 	// "="を押したら、"("がある")"がない時、自動的に補完
 	while (! gCalculationFormula.isEmpty() && gLeftBracketCounter > gRightBracketCounter) {
@@ -646,7 +664,7 @@ void MainWindow::on_btnFuncEqual_clicked()
 	emit sendFormula(gCalculationFormula);
 
 	// formulaを確認できるデバッグスイッチ
-//        qInfo() <<__FUNCTION__<< formula;
+	// qInfo() <<__FUNCTION__<< formula;
 
 	// カウントを元に戻す
 	gLeftBracketCounter = 0;

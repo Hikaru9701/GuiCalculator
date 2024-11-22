@@ -458,7 +458,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>ShibaCalculator v1.4.0 Beta by HikaruHoshino</string>
+   <string>ShibaCalculator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="btnNum7">
