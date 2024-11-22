@@ -51,8 +51,6 @@ private:
 	Ui::MainWindow* ui;
 	Calculation* calculation;
 	QTimer* timer;
-	QShortcut* shortcut;
-	QMovie* movieShiba;
 	QActionGroup* themeGroup;
 
 };
