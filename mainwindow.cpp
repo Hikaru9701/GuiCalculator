@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->frmDisplay->setStyleSheet(styleSheet);
 
 	// calculationクラスをインスタンス化
-//	calculation = new Calculation(this);
+	// calculation = new Calculation(this);
 	// formula発送
 	connect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
 	// answer回収
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget* parent)
 	installEventFilter(this);
 
 	// 1秒1回、updateLabelを呼び出す
-//	timer = new QTimer(this);
+	// timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateLabel()));
 	timer->start(1000);
 	//Qt5スタイル
@@ -124,8 +124,8 @@ MainWindow::MainWindow(QWidget* parent)
 									"}");
 
 	// Backspaceを起動するため、QShortcutを作る(QLabelに変更するので廃棄)
-//	QShortcut* shortcut = new QShortcut(QKeySequence("Backspace"), this);
-//	connect(shortcut, &QShortcut::activated, this, &MainWindow::animate_backspace);
+	// QShortcut* shortcut = new QShortcut(QKeySequence("Backspace"), this);
+	// connect(shortcut, &QShortcut::activated, this, &MainWindow::animate_backspace);
 
 	// メニュー
 	connect(ui->actionAboutMe, SIGNAL(triggered()), this, SLOT(about()));
@@ -187,21 +187,21 @@ MainWindow::~MainWindow()
 	// stop the QTimer
 	if (timer) {
 		// qDebug() << "Stopping timer";
-        timer->stop();
-        delete timer;
-        timer = nullptr;
-    }
+        	timer->stop();
+        	delete timer;
+        	timer = nullptr;
+    	}
 
 	// delete calculation objects
-    if (calculation) {
+    	if (calculation) {
 		// qDebug() << "Deleting calculation";
-        delete calculation;
-        calculation = nullptr;
-    }
+      		delete calculation;
+        	calculation = nullptr;
+    	}
 
 	// delete QAction objects
 	if (themeGroup) {
-		//		qDebug() << "Deleting actions in themeGroup";
+		// qDebug() << "Deleting actions in themeGroup";
 		foreach (QAction* action, themeGroup->actions()) {
 			// qDebug() << "Deleting action" << action;
 			delete action;
