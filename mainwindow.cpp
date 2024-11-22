@@ -28,158 +28,20 @@ MainWindow::MainWindow(QWidget* parent)
 	, timer(new QTimer(this))
 	, themeGroup(new QActionGroup(this))
 {
-	// 最小限と最大限の大きさを設置
-	this->setMinimumSize(500, 420);
-	this->setMaximumSize(550, 500);
-
-	ui->setupUi(this);
-	
-	// set the title of the program
-	QString title = QString("ShibaCalculator - v%1").arg(VERSION);
-	this->setWindowTitle(title);
-	
-	// 前回情報の読み込み
-	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";
-	QSettings setting(settingPath, QSettings::IniFormat);	// ファイルの特定
-	QPoint posMainWindow = setting.value("pos").toPoint();		// 場所情報を獲得
-	int widthMainWindow = setting.value("width").toInt();		// 幅情報を獲得
-	int heightMainWindow = setting.value("height").toInt();		// 高さ情報を獲得
-
-	// もしposは(0,0)なら，場所が設定されていないと判断する
-	if (posMainWindow == QPoint(0, 0)) {
-		this->move(200, 200);									// デフォルトの場所に移動
-	}
-	else {
-		this->move(posMainWindow);								// 前回の場所へ移動
-	}
-
-	// もし幅、高さが設定されていない
-	if (widthMainWindow == 0 && heightMainWindow == 0) {
-		this->resize(500, 500);									// デフォルトの大きさに設定
-	}
-	else {
-		this->resize(widthMainWindow, heightMainWindow);		// 前回の大きさに設定
-	}
-
-	// frameの設定
-	QString styleSheet = "border-radius: 10px; border:1px solid rgb(211,211,211)";
-	ui->frmDisplay->setStyleSheet(styleSheet);
-
-	// calculationクラスをインスタンス化
-	// calculation = new Calculation(this);
-	// formula発送
-	connect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
-	// answer回収
-	connect(calculation, SIGNAL(sendAnswer(QString)), this, SLOT(receiveAnswer(QString)));
-
-	//Qt5スタイル
-	//connect(this, &MainWindow::sendFormula, calculation, &Calculation::formulaCalculator);
-	//connect(calculation, &Calculation::sendAnswer, this, &MainWindow::receiveAnswer);
+	setupWindowSizeAndPosition();
+	initializeUIComponents();
+	connectSignalsAndSlots();
 
 	// EventFilterをインストール
 	installEventFilter(this);
 
 	// 1秒1回、updateLabelを呼び出す
 	// timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateLabel()));
 	timer->start(1000);
-	//Qt5スタイル
-	//connect(timer, &QTimer::timeout, this, &MainWindow::updateLabel);
-
-	// 動画表示
-	QString moviePath = QCoreApplication::applicationDirPath() + "/shiba.gif";
-	QMovie* movieShiba = new QMovie(moviePath, QByteArray(), this);
-	ui->lblMovie->setMovie(movieShiba);
-	movieShiba->start();
-
-	// テーマのグループ化
-	QActionGroup* themeGroup = new QActionGroup(this);
-	themeGroup->addAction(ui->actionManjaro);
-	themeGroup->addAction(ui->actionAMOLED);
-	themeGroup->addAction(ui->actionAqua);
-	themeGroup->addAction(ui->actionConsole);
-	themeGroup->addAction(ui->actionMacOS);
-	themeGroup->addAction(ui->actionUbuntu);
-	themeGroup->addAction(ui->actionDiplaytap);
-
-	// チェックできるように設定
-	ui->actionManjaro->setCheckable(true);
-	ui->actionAMOLED->setCheckable(true);
-	ui->actionAqua->setCheckable(true);
-	ui->actionConsole->setCheckable(true);
-	ui->actionMacOS->setCheckable(true);
-	ui->actionUbuntu->setCheckable(true);
-	ui->actionDiplaytap->setCheckable(true);
-
-	// デフォルトでManjaroに設定
-	ui->actionManjaro->setChecked(true);
-	connect(themeGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeTheme(QAction*)));
-	changeTheme(ui->actionManjaro);
-	
-	//Qt5スタイル
-	//connect(themeGroup, &QActionGroup::triggered, this, &MainWindow::changeTheme);
-
-	// labelDisplay垂直位置を中央に設定、水平位置は右
-	ui->lblDisplay->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-
-	// TextEditを設置
-	ui->txedtHistory->setReadOnly(true);
-	ui->txedtHistory->setAlignment(Qt::AlignLeft);
-	ui->txedtHistory->setStyleSheet("QTextEdit {"
-									"border-radius: 10px;"
-									"}");
 
 	// Backspaceを起動するため、QShortcutを作る(QLabelに変更するので廃棄)
 	// QShortcut* shortcut = new QShortcut(QKeySequence("Backspace"), this);
 	// connect(shortcut, &QShortcut::activated, this, &MainWindow::animate_backspace);
-
-	// メニュー
-	connect(ui->actionAboutMe, SIGNAL(triggered()), this, SLOT(about()));
-	connect(ui->actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
-	connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(exit()));
-	// Qt5スタイル
-	// connect(ui->actionAboutMe, &QAction::triggered, this, &MainWindow::about);
-	// connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
-	// connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
-
-	// 入力ボタンをクリック
-	connect(ui->btnNum7, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum8, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum9, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignPlus, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignLeft, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum4, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum5, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum6, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignMinus, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignRight, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum1, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum2, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum3, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignMulti, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignPoint, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnNum0, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-	connect(ui->btnSignDivided, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
-
-	// Qt5スタイル
-	// connect(ui->pushButton_7, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_8, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_9, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_plus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_left, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_6, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_minus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_right, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_multi, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_point, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_0, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-	// connect(ui->pushButton_divided, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
-
 }
 
 //----------------------------------------------------------------------------
@@ -244,6 +106,148 @@ MainWindow::~MainWindow()
 //----------------------------------------------------------------------------
 //------------------------------機能実装関数----------------------------------
 //----------------------------------------------------------------------------
+
+// Setup the window size and position
+void MainWindow::setupWindowSizeAndPosition() {
+	this->setMinimumSize(500, 420);
+	this->setMaximumSize(550, 500);
+	
+	// 前回情報の読み込み
+	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";
+	QSettings setting(settingPath, QSettings::IniFormat);	// ファイルの特定
+	QPoint posMainWindow = setting.value("pos").toPoint();		// 場所情報を獲得
+	int widthMainWindow = setting.value("width").toInt();		// 幅情報を獲得
+	int heightMainWindow = setting.value("height").toInt();		// 高さ情報を獲得
+
+	// もしposは(0,0)なら，場所が設定されていないと判断する
+	if (posMainWindow == QPoint(0, 0)) {
+		this->move(200, 200);									// デフォルトの場所に移動
+	} else {
+		this->move(posMainWindow);								// 前回の場所へ移動
+	}
+
+	// もし幅、高さが設定されていない
+	if (widthMainWindow == 0 && heightMainWindow == 0) {
+		this->resize(500, 500);									// デフォルトの大きさに設定
+	} else {
+		this->resize(widthMainWindow, heightMainWindow);		// 前回の大きさに設定
+	}
+}
+
+// Initialize UI Components
+void MainWindow::initializeUIComponents() {
+    ui->setupUi(this);
+    QString title = QString("ShibaCalculator - v%1").arg(VERSION);
+    this->setWindowTitle(title);
+
+    QString styleSheet = "border-radius: 10px; border:1px solid rgb(211,211,211)";
+    ui->frmDisplay->setStyleSheet(styleSheet);
+
+	// 動画を再生する
+    QString moviePath = QCoreApplication::applicationDirPath() + "/shiba.gif";
+    QMovie* movieShiba = new QMovie(moviePath, QByteArray(), this);
+    ui->lblMovie->setMovie(movieShiba);
+    movieShiba->start();
+
+	// labelDisplay垂直位置を中央に設定、水平位置は右
+	ui->lblDisplay->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+	// TextEditを設置
+	ui->txedtHistory->setReadOnly(true);
+	ui->txedtHistory->setAlignment(Qt::AlignLeft);
+	ui->txedtHistory->setStyleSheet("QTextEdit {"
+									"border-radius: 10px;"
+									"}");
+	
+	// テーマのグループ化
+	QActionGroup* themeGroup = new QActionGroup(this);
+	themeGroup->addAction(ui->actionManjaro);
+	themeGroup->addAction(ui->actionAMOLED);
+	themeGroup->addAction(ui->actionAqua);
+	themeGroup->addAction(ui->actionConsole);
+	themeGroup->addAction(ui->actionMacOS);
+	themeGroup->addAction(ui->actionUbuntu);
+	themeGroup->addAction(ui->actionDiplaytap);
+
+	// チェックできるように設定
+	ui->actionManjaro->setCheckable(true);
+	ui->actionAMOLED->setCheckable(true);
+	ui->actionAqua->setCheckable(true);
+	ui->actionConsole->setCheckable(true);
+	ui->actionMacOS->setCheckable(true);
+	ui->actionUbuntu->setCheckable(true);
+	ui->actionDiplaytap->setCheckable(true);
+
+	// デフォルトでManjaroに設定
+	ui->actionManjaro->setChecked(true);
+	connect(themeGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeTheme(QAction*)));
+	//Qt5スタイル
+	//connect(timer, &QTimer::timeout, this, &MainWindow::updateLabel);
+	changeTheme(ui->actionManjaro);
+}
+
+void MainWindow::connectSignalsAndSlots() {
+	// calculationクラスをインスタンス化
+	// calculation = new Calculation(this);
+	// formula発送
+	connect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
+	// answer回収
+	connect(calculation, SIGNAL(sendAnswer(QString)), this, SLOT(receiveAnswer(QString)));
+	//Qt5スタイル
+	//connect(this, &MainWindow::sendFormula, calculation, &Calculation::formulaCalculator);
+	//connect(calculation, &Calculation::sendAnswer, this, &MainWindow::receiveAnswer);
+	
+	connect(timer, SIGNAL(timeout()), this, SLOT(updateLabel()));
+	//Qt5スタイル
+	//connect(themeGroup, &QActionGroup::triggered, this, &MainWindow::changeTheme);
+	
+	// メニュー
+	connect(ui->actionAboutMe, SIGNAL(triggered()), this, SLOT(about()));
+	connect(ui->actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
+	connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(exit()));
+	// Qt5スタイル
+	// connect(ui->actionAboutMe, &QAction::triggered, this, &MainWindow::about);
+	// connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
+	// connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
+
+	// 入力ボタンをクリック
+	connect(ui->btnNum7, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum8, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum9, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignPlus, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignLeft, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum4, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum5, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum6, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignMinus, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignRight, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum1, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum2, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum3, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignMulti, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignPoint, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnNum0, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+	connect(ui->btnSignDivided, SIGNAL(clicked()), this, SLOT(onInputButtonClicked()));
+
+	// Qt5スタイル
+	// connect(ui->pushButton_7, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_8, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_9, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_plus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_left, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_6, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_minus, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_right, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_multi, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_point, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_0, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);
+	// connect(ui->pushButton_divided, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);	
+}
 
 // 開発者情報
 void MainWindow::about()

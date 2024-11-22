@@ -26,6 +26,9 @@ signals:
 protected:
 //	void keyPressEvent(QKeyEvent *event);
 	bool eventFilter(QObject* obj, QEvent* event);
+	void setupWindowSizeAndPosition();
+	void initializeUIComponents();
+	void connectSignalsAndSlots();
 
 private slots:
 
