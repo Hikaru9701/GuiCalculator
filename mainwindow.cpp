@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "calculation.h"
 
@@ -22,6 +22,9 @@ QList<QString> gHistoryFormulaList;								// 数式履歴配列
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
+	, calculation(new Calculation(this))
+	, timer(new QTimer(this))
+	, themeGroup(new QActionGroup(this))
 {
 	// 最小限と最大限の大きさを設置
 	this->setMinimumSize(500, 420);
@@ -56,7 +59,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->frmDisplay->setStyleSheet(styleSheet);
 
 	// calculationクラスをインスタンス化
-	calculation = new Calculation(this);
+//	calculation = new Calculation(this);
 	// formula発送
 	connect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
 	// answer回収
@@ -70,7 +73,7 @@ MainWindow::MainWindow(QWidget* parent)
 	installEventFilter(this);
 
 	// 1秒1回、updateLabelを呼び出す
-	timer = new QTimer(this);
+//	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateLabel()));
 	timer->start(1000);
 	//Qt5スタイル
@@ -177,11 +180,43 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-	timer->stop(); // stop the QTimer
-	delete ui;
-	delete timer;
-	delete calculation;
-	delete themeGroup;
+//    qDebug() << "Destructor called";
+
+    // stop the QTimer
+    if (timer) {
+//		qDebug() << "Stopping timer";
+        timer->stop();
+        delete timer;
+        timer = nullptr;
+    }
+
+    // delete calculation objects
+    if (calculation) {
+//		qDebug() << "Deleting calculation";
+        delete calculation;
+        calculation = nullptr;
+    }
+
+	// delete QAction objects
+	if (themeGroup) {
+//		qDebug() << "Deleting actions in themeGroup";
+		foreach (QAction* action, themeGroup->actions()) {
+//			qDebug() << "Deleting action" << action;
+			delete action;
+		}
+//		qDebug() << "Deleting themeGroup";
+		delete themeGroup;
+		themeGroup = nullptr;
+	}
+
+    // delete UI
+    if (ui) {
+//		qDebug() << "Deleting UI";
+        delete ui;
+        ui = nullptr;
+    }
+
+//    qDebug() << "Destructor finished";
 }
 
 
@@ -195,7 +230,7 @@ void MainWindow::about()
 	QMessageBox::about(this, "About Me",
 					   "<center><h2>ShibaCalculator</h2></center><br>"
 					   "A cuter calculator based on Qt 5.7.1<br>"
-					   "Version 1.2.2 Steady<br>"
+					   "Version 1.3.0 Steady<br>"
 					   "Designed by HikaruHoshino");
 }
 
