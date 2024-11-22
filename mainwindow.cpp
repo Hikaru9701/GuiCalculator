@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "calculation.h"
 
@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->setupUi(this);
 
 	// 前回情報の読み込み
-	QSettings setting("./config.ini", QSettings::IniFormat);	// ファイルの特定
+	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";;
+	QSettings setting(settingPath, QSettings::IniFormat);;	// ファイルの特定
 	QPoint posMainWindow = setting.value("pos").toPoint();		// 場所情報を獲得
 	int widthMainWindow = setting.value("width").toInt();		// 幅情報を獲得
 	int heightMainWindow = setting.value("height").toInt();		// 高さ情報を獲得
@@ -80,7 +81,8 @@ MainWindow::MainWindow(QWidget* parent)
 	//connect(timer, &QTimer::timeout, this, &MainWindow::updateLabel);
 
 	// 動画表示
-	QMovie* movieShiba = new QMovie("./shiba.gif", QByteArray(), this);
+	QString moviePath = QCoreApplication::applicationDirPath() + "/shiba.gif";
+	QMovie* movieShiba = new QMovie(moviePath, QByteArray(), this);
 	ui->lblMovie->setMovie(movieShiba);
 	movieShiba->start();
 
@@ -180,43 +182,43 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-//    qDebug() << "Destructor called";
+	// qDebug() << "Destructor called";
 
-    // stop the QTimer
-    if (timer) {
-//		qDebug() << "Stopping timer";
+	// stop the QTimer
+	if (timer) {
+		// qDebug() << "Stopping timer";
         timer->stop();
         delete timer;
         timer = nullptr;
     }
 
-    // delete calculation objects
+	// delete calculation objects
     if (calculation) {
-//		qDebug() << "Deleting calculation";
+		// qDebug() << "Deleting calculation";
         delete calculation;
         calculation = nullptr;
     }
 
 	// delete QAction objects
 	if (themeGroup) {
-//		qDebug() << "Deleting actions in themeGroup";
+		//		qDebug() << "Deleting actions in themeGroup";
 		foreach (QAction* action, themeGroup->actions()) {
-//			qDebug() << "Deleting action" << action;
+			// qDebug() << "Deleting action" << action;
 			delete action;
 		}
-//		qDebug() << "Deleting themeGroup";
+		// qDebug() << "Deleting themeGroup";
 		delete themeGroup;
 		themeGroup = nullptr;
 	}
 
-    // delete UI
-    if (ui) {
-//		qDebug() << "Deleting UI";
-        delete ui;
-        ui = nullptr;
-    }
+	// delete UI
+	if (ui) {
+		// qDebug() << "Deleting UI";
+		delete ui;
+		ui = nullptr;
+	}
 
-//    qDebug() << "Destructor finished";
+	// qDebug() << "Destructor finished";
 }
 
 
@@ -230,7 +232,7 @@ void MainWindow::about()
 	QMessageBox::about(this, "About Me",
 					   "<center><h2>ShibaCalculator</h2></center><br>"
 					   "A cuter calculator based on Qt 5.7.1<br>"
-					   "Version 1.3.0 Steady<br>"
+					   "Version 1.4.0 Beta<br>"
 					   "Designed by HikaruHoshino");
 }
 
@@ -243,7 +245,7 @@ void MainWindow::aboutQt()
 // テーマ変更
 void MainWindow::changeTheme(QAction* action)
 {
-	QString mainWindowTheme = "./styles/" + action->objectName().remove("action") + ".qss";
+	QString mainWindowTheme = QCoreApplication::applicationDirPath() + "/styles/" + action->objectName().remove("action") + ".qss";
 	QFile file(mainWindowTheme);
 	file.open(QIODevice::ReadOnly);
 	setStyleSheet(file.readAll());
@@ -270,7 +272,8 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	//Q_UNUSED(event);
 
 	// 前回の場所、大きさ情報をconfig.iniに記入
-	QSettings setting("./config.ini", QSettings::IniFormat);
+	QString settingPath = QCoreApplication::applicationDirPath() + "/config.ini";;
+	QSettings setting(settingPath, QSettings::IniFormat);
 	setting.setValue("pos", this->pos());
 	setting.setValue("width", this->width());
 	setting.setValue("height", this->height());
