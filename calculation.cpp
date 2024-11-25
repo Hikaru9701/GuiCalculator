@@ -56,6 +56,8 @@ void Calculation::formulaCalculator(const QString& formula)
 		emit sendAnswer(gAnsString);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -94,6 +96,9 @@ QStringList Calculation::devideFormula(const QString& formula)
 		return formulaList;
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+		return QStringList();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 		return QStringList();
 	}
 }
@@ -176,6 +181,9 @@ QStringList Calculation::infixToPostfix(const QStringList& infix)
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
 		return QStringList();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
+		return QStringList();
 	}
 }
 
@@ -241,6 +249,9 @@ double Calculation::postfixCalculator(const QStringList& postfix)
 		return calculationResult;
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+		return -1;
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 		return -1;
 	}
 }

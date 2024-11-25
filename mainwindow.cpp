@@ -15,7 +15,7 @@ QString gHistoryText = "";										// 計算履歴文字列
 QList<QString> gHistoryTextList;								// 表示内容履歴配列
 QList<QString> gHistoryFormulaList;								// 数式履歴配列
 
-const QString VERSION = "1.5.0 beta";
+const QString VERSION = "1.5.1 beta";
 
 //----------------------------------------------------------------------------
 //------------------------------コンストラクタ--------------------------------
@@ -28,20 +28,26 @@ MainWindow::MainWindow(QWidget* parent)
 	, timer(new QTimer(this))
 	, themeGroup(new QActionGroup(this))
 {
-	setupWindowSizeAndPosition();
-	initializeUIComponents();
-	connectSignalsAndSlots();
-
-	// EventFilterをインストール
-	installEventFilter(this);
-
-	// 1秒1回、updateLabelを呼び出す
-	// timer = new QTimer(this);
-	timer->start(1000);
-
-	// Backspaceを起動するため、QShortcutを作る(QLabelに変更するので廃棄)
-	// QShortcut* shortcut = new QShortcut(QKeySequence("Backspace"), this);
-	// connect(shortcut, &QShortcut::activated, this, &MainWindow::animate_backspace);
+	try {
+		setupWindowSizeAndPosition();
+		initializeUIComponents();
+		connectSignalsAndSlots();
+	
+		// EventFilterをインストール
+		installEventFilter(this);
+	
+		// 1秒1回、updateLabelを呼び出す
+		// timer = new QTimer(this);
+		timer->start(1000);
+	
+		// Backspaceを起動するため、QShortcutを作る(QLabelに変更するので廃棄)
+		// QShortcut* shortcut = new QShortcut(QKeySequence("Backspace"), this);
+		// connect(shortcut, &QShortcut::activated, this, &MainWindow::animate_backspace);
+	} catch (const std::exception& e) {
+        qCritical() << "Error in constructor" << Q_FUNC_INFO << ": " << e.what();
+    } catch (...) {
+		qCritical() << "An unknown error occurred in constructor" << Q_FUNC_INFO;
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -50,56 +56,62 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-	// qDebug() << "Destructor called";
-
-	// stop the QTimer
-	if (timer) {
-		// qDebug() << "Stopping timer";
-		timer->stop();
-		delete timer;
-		timer = nullptr;
-	}
-
-	// delete calculation objects
-	if (calculation) {
-		disconnect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
-		disconnect(calculation, SIGNAL(sendAnswer(QString)), this, SLOT(receiveAnswer(QString)));
-		// qDebug() << "Deleting calculation";
-		delete calculation;
-		calculation = nullptr;
-	}
-
-	// delete QAction objects
-	if (themeGroup) {
-		disconnect(themeGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeTheme(QAction*)));
-		// qDebug() << "Deleting actions in themeGroup";
-		foreach (QAction* action, themeGroup->actions()) {
-			// qDebug() << "Deleting action" << action;
-			delete action;
+	try {
+		// qDebug() << "Destructor called";
+	
+		// stop the QTimer
+		if (timer) {
+			// qDebug() << "Stopping timer";
+			timer->stop();
+			delete timer;
+			timer = nullptr;
 		}
-		// qDebug() << "Deleting themeGroup";
-		delete themeGroup;
-		themeGroup = nullptr;
-	}
 	
-	// delete QMovie object
-	if (ui->lblMovie->movie()) {
-		delete ui->lblMovie->movie();
-		ui->lblMovie->setMovie(nullptr);
-	}
-
-	// delete UI
-	if (ui) {
-		// qDebug() << "Deleting UI";
-		delete ui;
-		ui = nullptr;
-	}
+		// delete calculation objects
+		if (calculation) {
+			disconnect(this, SIGNAL(sendFormula(QString)), calculation, SLOT(formulaCalculator(QString)));
+			disconnect(calculation, SIGNAL(sendAnswer(QString)), this, SLOT(receiveAnswer(QString)));
+			// qDebug() << "Deleting calculation";
+			delete calculation;
+			calculation = nullptr;
+		}
 	
-	// delete QList
-	gHistoryTextList.clear();
-	gHistoryFormulaList.clear();
-
-	// qDebug() << "Destructor finished";
+		// delete QAction objects
+		if (themeGroup) {
+			disconnect(themeGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeTheme(QAction*)));
+			// qDebug() << "Deleting actions in themeGroup";
+			foreach (QAction* action, themeGroup->actions()) {
+				// qDebug() << "Deleting action" << action;
+				delete action;
+			}
+			// qDebug() << "Deleting themeGroup";
+			delete themeGroup;
+			themeGroup = nullptr;
+		}
+		
+		// delete QMovie object
+		if (ui->lblMovie->movie()) {
+			delete ui->lblMovie->movie();
+			ui->lblMovie->setMovie(nullptr);
+		}
+	
+		// delete UI
+		if (ui) {
+			// qDebug() << "Deleting UI";
+			delete ui;
+			ui = nullptr;
+		}
+		
+		// delete QList
+		gHistoryTextList.clear();
+		gHistoryFormulaList.clear();
+	
+		// qDebug() << "Destructor finished";
+	} catch (const std::exception& e) {
+        qCritical() << "Error in destructor" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in destructor" << Q_FUNC_INFO;
+	}
 }
 
 
@@ -135,6 +147,8 @@ void MainWindow::setupWindowSizeAndPosition() {
 		}
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -191,6 +205,8 @@ void MainWindow::initializeUIComponents() {
 		changeTheme(ui->actionManjaro);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }	
 
@@ -256,23 +272,37 @@ void MainWindow::connectSignalsAndSlots() {
 		// connect(ui->pushButton_divided, &QPushButton::clicked, this, &MainWindow::onInputButtonClicked);	
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
 // 開発者情報
 void MainWindow::about()
 {
-	QMessageBox::about(this, "About Me",
-					"<center><h2>ShibaCalculator</h2></center><br>"
-					"A cuter calculator based on Qt 5.7.1<br>"
-					"Version " + VERSION + "<br>"
-					"Designed by HikaruHoshino");
+	try {
+		QMessageBox::about(this, "About Me",
+						"<center><h2>ShibaCalculator</h2></center><br>"
+						"A cuter calculator based on Qt 5.7.1<br>"
+						"Version " + VERSION + "<br>"
+						"Designed by HikaruHoshino");
+	} catch (const std::exception &e) {
+		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
+	}
 }
 
 // Qtに関する情報
 void MainWindow::aboutQt()
 {
-	QMessageBox::aboutQt(this, "About Qt");
+	try {
+		QMessageBox::aboutQt(this, "About Qt");
+	} catch (const std::exception &e) {
+		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
+	}
 }
 
 // テーマ変更
@@ -294,6 +324,8 @@ void MainWindow::changeTheme(QAction* action)
 		setStyleSheet(file.readAll());
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -306,6 +338,8 @@ void MainWindow::updateLabel()
 		ui->lblTime->setText(dateTimeString);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -313,7 +347,14 @@ void MainWindow::updateLabel()
 // 終了
 void MainWindow::exit()
 {
-	this->close();
+	try {
+		this->close();
+	} catch (const std::exception &e) {
+		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
+	}
+	
 }
 
 // アプリ終了する時の動作
@@ -333,6 +374,8 @@ void MainWindow::closeEvent(QCloseEvent* event)
 		QMainWindow::closeEvent(event);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -366,6 +409,8 @@ void MainWindow::receiveAnswer(const QString& ans)
 		ui->txedtHistory->append(gHistoryText);			// 履歴に追加
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -414,6 +459,9 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 		return QMainWindow::eventFilter(obj, event);				// ほかのイベント、親クラスに渡す
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+		return false;
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 		return false;
 	}
 }
@@ -608,6 +656,8 @@ void MainWindow::onInputButtonClicked()
 		}
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -627,6 +677,8 @@ void MainWindow::on_btnFuncClear_clicked()
 		gRightBracketCounter = 0;
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -716,6 +768,8 @@ void MainWindow::on_btnFuncEqual_clicked()
 		gRightBracketCounter = 0;
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -761,6 +815,8 @@ void MainWindow::on_btnFuncAns_clicked()
 		ui->lblDisplay->setText(gDisplayText);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -819,6 +875,8 @@ void MainWindow::on_btnFuncBack_clicked()
 		ui->lblDisplay->setText(gDisplayText);
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -831,6 +889,8 @@ void MainWindow::on_cmbHistorySelect_currentIndexChanged(int index)
 		ui->lblDisplay->setText(gDisplayText);									// 表示数式を表す
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -853,6 +913,8 @@ void MainWindow::on_btnFuncCopy_clicked()
 		}
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
@@ -887,6 +949,8 @@ void MainWindow::on_btnFuncDelete_clicked()
 		}
 	} catch (const std::exception &e) {
 		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
+	} catch (...) {
+		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
 	}
 }
 
