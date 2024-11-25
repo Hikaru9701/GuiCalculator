@@ -7,6 +7,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <windows.h>
 
 class Calculation : public QObject
 {
@@ -15,15 +16,15 @@ public:
 	explicit Calculation(QObject* parent = nullptr);
 
 private slots:
-	void formulaCalculator(const QString& formula);
+	HRESULT formulaCalculator(const QString& formula);
 
 signals:
 	void sendAnswer(const QString& ans);
 
 private:
-	QStringList infixToPostfix(const QStringList& infix);
-	QStringList devideFormula(const QString& formula);
-	double postfixCalculator(const QStringList& express);
+	HRESULT devideFormula(const QString& formula, QStringList& formulaList);
+	HRESULT infixToPostfix(const QStringList& infix, QStringList& postfix);
+	HRESULT postfixCalculator(const QStringList& postfix, double& result);
 };
 
 

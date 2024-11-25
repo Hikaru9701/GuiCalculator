@@ -280,29 +280,17 @@ void MainWindow::connectSignalsAndSlots() {
 // 開発者情報
 void MainWindow::about()
 {
-	try {
-		QMessageBox::about(this, "About Me",
-						"<center><h2>ShibaCalculator</h2></center><br>"
-						"A cuter calculator based on Qt 5.7.1<br>"
-						"Version " + VERSION + "<br>"
-						"Designed by HikaruHoshino");
-	} catch (const std::exception &e) {
-		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
-	} catch (...) {
-		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
-	}
+	QMessageBox::about(this, "About Me",
+					"<center><h2>ShibaCalculator</h2></center><br>"
+					"A cuter calculator based on Qt 5.7.1<br>"
+					"Version " + VERSION + "<br>"
+					"Designed by HikaruHoshino");
 }
 
 // Qtに関する情報
 void MainWindow::aboutQt()
 {
-	try {
-		QMessageBox::aboutQt(this, "About Qt");
-	} catch (const std::exception &e) {
-		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
-	} catch (...) {
-		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
-	}
+	QMessageBox::aboutQt(this, "About Qt");
 }
 
 // テーマ変更
@@ -347,14 +335,7 @@ void MainWindow::updateLabel()
 // 終了
 void MainWindow::exit()
 {
-	try {
-		this->close();
-	} catch (const std::exception &e) {
-		qCritical() << "An error occurred in function" << Q_FUNC_INFO << ": " << e.what();
-	} catch (...) {
-		qCritical() << "An unknown error occurred in function" << Q_FUNC_INFO;
-	}
-	
+	this->close();
 }
 
 // アプリ終了する時の動作
