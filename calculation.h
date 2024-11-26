@@ -14,7 +14,7 @@ class Calculation : public QObject
 public:
 	explicit Calculation(QObject* parent = nullptr);
 
-private slots:
+public slots:
 	void formulaCalculator(const QString& formula);
 
 signals:

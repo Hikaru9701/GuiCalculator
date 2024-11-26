@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "calculation.h"
 #include <QtWidgets>
+#include <QScopedPointer>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -52,9 +54,10 @@ private slots:
 
 private:
 	Ui::MainWindow* ui;
-	Calculation* calculation;
-	QTimer* timer;
-	QActionGroup* themeGroup;
+	std::unique_ptr<Calculation> calculation;
+	std::unique_ptr<QTimer> timer;
+	std::unique_ptr<QActionGroup> themeGroup;
+	std::unique_ptr<QMovie> movieShiba;
 
 };
 #endif // MAINWINDOW_H
